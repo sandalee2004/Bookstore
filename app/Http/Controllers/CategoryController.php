@@ -1,6 +1,4 @@
 <?php
-// app/Http/Controllers/CategoryController.php
-
 namespace App\Http\Controllers;
 
 use App\Models\Category;
@@ -11,7 +9,7 @@ class CategoryController extends Controller
 {
     public function index()
     {
-        $categories = Category::active()
+        $categories = Category::where('is_active', true)
             ->withCount('books')
             ->orderBy('name')
             ->get();
@@ -21,11 +19,13 @@ class CategoryController extends Controller
 
     public function show($slug)
     {
-        $category = Category::where('slug', $slug)->active()->firstOrFail();
+        $category = Category::where('slug', $slug)
+            ->where('is_active', true)
+            ->firstOrFail();
         
         $books = Book::with(['author', 'category'])
             ->where('category_id', $category->id)
-            ->active()
+            ->where('is_active', true)
             ->paginate(12);
 
         return view('categories.show', compact('category', 'books'));

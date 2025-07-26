@@ -56,7 +56,10 @@ class User extends Authenticatable
     public function getCartTotalAttribute()
     {
         return $this->cartItems->sum(function ($item) {
-            return $item->book->final_price * $item->quantity;
+            if ($item->book && $item->book->final_price) {
+                return $item->book->final_price * $item->quantity;
+            }
+            return 0;
         });
     }
 

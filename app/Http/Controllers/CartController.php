@@ -17,7 +17,9 @@ class CartController extends Controller
 
     public function index()
     {
-        $cartItems = Auth::user()->cartItems()->with('book.author')->get();
+        $user = Auth::user();
+        $cartItems = $user->cartItems()->with(['book.author', 'book.category'])->get();
+        
         $total = $cartItems->sum(function ($item) {
             return $item->book->final_price * $item->quantity;
         });
@@ -33,7 +35,15 @@ class CartController extends Controller
 
         $book = Book::findOrFail($bookId);
         
-        if (!$book->is_in_stock) {
+        // Check if book is active and in stock
+        if (!$book->is_active) {
+            return response()->json([
+                'success' => false,
+                'message' => 'This book is not available.'
+            ]);
+        }
+
+        if ($book->stock_quantity <= 0) {
             return response()->json([
                 'success' => false,
                 'message' => 'This book is currently out of stock.'

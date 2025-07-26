@@ -47,6 +47,7 @@
                         </div>
 
                         <!-- Categories -->
+                        @if(isset($categories) && $categories->count() > 0)
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Category</label>
                             <select name="category" class="input-field">
@@ -59,8 +60,10 @@
                                 @endforeach
                             </select>
                         </div>
+                        @endif
 
                         <!-- Authors -->
+                        @if(isset($authors) && $authors->count() > 0)
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Author</label>
                             <select name="author" class="input-field">
@@ -73,6 +76,7 @@
                                 @endforeach
                             </select>
                         </div>
+                        @endif
 
                         <!-- Price Range -->
                         <div>
@@ -135,8 +139,12 @@
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                         <div class="flex items-center space-x-4 mb-4 sm:mb-0">
                             <span class="text-sm text-gray-600">
-                                Showing {{ $books->firstItem() ?? 0 }}-{{ $books->lastItem() ?? 0 }} 
-                                of {{ $books->total() }} books
+                                @if(isset($books))
+                                    Showing {{ $books->firstItem() ?? 0 }}-{{ $books->lastItem() ?? 0 }} 
+                                    of {{ $books->total() }} books
+                                @else
+                                    Loading books...
+                                @endif
                             </span>
                         </div>
 
@@ -169,101 +177,103 @@
 
                 <!-- Books Grid -->
                 <div id="books-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    @forelse($books as $book)
-                        <div class="book-card card card-hover group animate-fade-in-up" 
-                             style="animation-delay: {{ $loop->index * 0.05 }}s;">
-                            <div class="relative overflow-hidden">
-                                <img src="{{ $book->cover_image }}" 
-                                     alt="{{ $book->title }}" 
-                                     class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
-                                     loading="lazy">
-                                
-                                <!-- Overlay actions -->
-                                <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
-                                    <div class="opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 space-x-2">
-                                        <button onclick="quickView({{ $book->id }})" 
-                                                class="btn btn-primary btn-sm">
-                                            Quick View
-                                        </button>
+                    @if(isset($books) && $books->count() > 0)
+                        @foreach($books as $book)
+                            <div class="book-card bg-white rounded-xl shadow-md hover:shadow-xl transform hover:-translate-y-2 transition-all duration-300 group overflow-hidden animate-fade-in-up" 
+                                 style="animation-delay: {{ $loop->index * 0.05 }}s;">
+                                <div class="relative overflow-hidden">
+                                    <img src="{{ $book->cover_image }}" 
+                                         alt="{{ $book->title }}" 
+                                         class="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
+                                         loading="lazy">
+                                    
+                                    <!-- Overlay actions -->
+                                    <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300 flex items-center justify-center">
+                                        <div class="opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 space-x-2">
+                                            <button onclick="quickView({{ $book->id }})" 
+                                                    class="btn btn-primary btn-sm">
+                                                Quick View
+                                            </button>
+                                        </div>
                                     </div>
-                                </div>
 
-                                <!-- Badges -->
-                                @if($book->discount_percentage > 0)
-                                    <div class="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold">
-                                        -{{ $book->discount_percentage }}%
-                                    </div>
-                                @endif
+                                    <!-- Badges -->
+                                    @if($book->discount_percentage > 0)
+                                        <div class="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold">
+                                            -{{ $book->discount_percentage }}%
+                                        </div>
+                                    @endif
 
-                                @if($book->is_featured)
-                                    <div class="absolute top-2 left-2 bg-yellow-500 text-white px-2 py-1 rounded-full text-xs font-bold">
-                                        ⭐ Featured
-                                    </div>
-                                @endif
+                                    @if($book->is_featured)
+                                        <div class="absolute top-2 left-2 bg-yellow-500 text-white px-2 py-1 rounded-full text-xs font-bold">
+                                            ⭐ Featured
+                                        </div>
+                                    @endif
 
-                                @if(!$book->is_in_stock)
-                                    <div class="absolute inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center">
-                                        <span class="bg-gray-800 text-white px-3 py-1 rounded-full text-sm font-medium">
-                                            Out of Stock
-                                        </span>
-                                    </div>
-                                @endif
-                            </div>
-
-                            <div class="p-4">
-                                <h3 class="font-bold text-lg mb-1 group-hover:text-primary-600 transition-colors line-clamp-2">
-                                    <a href="{{ route('books.show', $book->slug) }}">{{ $book->title }}</a>
-                                </h3>
-                                <p class="text-gray-600 text-sm mb-2">by {{ $book->author->name }}</p>
-                                <p class="text-gray-500 text-sm mb-3 line-clamp-2">{{ $book->description }}</p>
-                                
-                                <!-- Rating -->
-                                <div class="flex items-center mb-3">
-                                    @for($i = 1; $i <= 5; $i++)
-                                        <svg class="w-4 h-4 {{ $i <= $book->rating ? 'text-yellow-400' : 'text-gray-300' }}" 
-                                             fill="currentColor" viewBox="0 0 20 20">
-                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                                        </svg>
-                                    @endfor
-                                    <span class="text-xs text-gray-500 ml-1">({{ $book->reviews_count }})</span>
-                                </div>
-
-                                <!-- Price -->
-                                <div class="flex items-center justify-between mb-3">
-                                    <div class="flex items-center space-x-2">
-                                        @if($book->discount_price)
-                                            <span class="text-lg font-bold text-primary-600">${{ number_format($book->discount_price, 2) }}</span>
-                                            <span class="text-sm text-gray-500 line-through">${{ number_format($book->price, 2) }}</span>
-                                        @else
-                                            <span class="text-lg font-bold text-primary-600">${{ number_format($book->price, 2) }}</span>
-                                        @endif
-                                    </div>
-                                    <span class="text-xs text-gray-500">{{ $book->category->name }}</span>
-                                </div>
-
-                                <!-- Actions -->
-                                <div class="flex space-x-2">
-                                    <a href="{{ route('books.show', $book->slug) }}" 
-                                       class="flex-1 btn btn-outline text-sm py-2 text-center">
-                                        View Details
-                                    </a>
-                                    @if($book->is_in_stock)
-                                        <button onclick="addToCart({{ $book->id }})" 
-                                                class="flex-1 btn btn-primary text-sm py-2 flex items-center justify-center">
-                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m.6 8L6 18h12"/>
-                                            </svg>
-                                            Add to Cart
-                                        </button>
-                                    @else
-                                        <button disabled class="flex-1 btn bg-gray-300 text-gray-500 text-sm py-2 cursor-not-allowed">
-                                            Out of Stock
-                                        </button>
+                                    @if(!$book->is_in_stock)
+                                        <div class="absolute inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center">
+                                            <span class="bg-gray-800 text-white px-3 py-1 rounded-full text-sm font-medium">
+                                                Out of Stock
+                                            </span>
+                                        </div>
                                     @endif
                                 </div>
+
+                                <div class="p-4">
+                                    <h3 class="font-bold text-lg mb-1 group-hover:text-primary-600 transition-colors line-clamp-2">
+                                        <a href="{{ route('books.show', $book->slug) }}">{{ $book->title }}</a>
+                                    </h3>
+                                    <p class="text-gray-600 text-sm mb-2">by {{ $book->author->name ?? 'Unknown Author' }}</p>
+                                    <p class="text-gray-500 text-sm mb-3 line-clamp-2">{{ Str::limit($book->description ?? '', 100) }}</p>
+                                    
+                                    <!-- Rating -->
+                                    <div class="flex items-center mb-3">
+                                        @for($i = 1; $i <= 5; $i++)
+                                            <svg class="w-4 h-4 {{ $i <= ($book->rating ?? 0) ? 'text-yellow-400' : 'text-gray-300' }}" 
+                                                 fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                            </svg>
+                                        @endfor
+                                        <span class="text-xs text-gray-500 ml-1">({{ $book->reviews_count ?? 0 }})</span>
+                                    </div>
+
+                                    <!-- Price -->
+                                    <div class="flex items-center justify-between mb-3">
+                                        <div class="flex items-center space-x-2">
+                                            @if($book->discount_price)
+                                                <span class="text-lg font-bold text-primary-600">${{ number_format($book->discount_price, 2) }}</span>
+                                                <span class="text-sm text-gray-500 line-through">${{ number_format($book->price, 2) }}</span>
+                                            @else
+                                                <span class="text-lg font-bold text-primary-600">${{ number_format($book->price ?? 0, 2) }}</span>
+                                            @endif
+                                        </div>
+                                        <span class="text-xs text-gray-500">{{ $book->category->name ?? 'Uncategorized' }}</span>
+                                    </div>
+
+                                    <!-- Actions -->
+                                    <div class="flex space-x-2">
+                                        <a href="{{ route('books.show', $book->slug) }}" 
+                                           class="flex-1 btn btn-outline text-sm py-2 text-center">
+                                            View Details
+                                        </a>
+                                        @if($book->is_in_stock ?? true)
+                                            <button onclick="addToCart({{ $book->id }})" 
+                                                    class="flex-1 btn btn-primary text-sm py-2 flex items-center justify-center">
+                                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m.6 8L6 18h12"/>
+                                                </svg>
+                                                Add to Cart
+                                            </button>
+                                        @else
+                                            <button disabled class="flex-1 btn bg-gray-300 text-gray-500 text-sm py-2 cursor-not-allowed">
+                                                Out of Stock
+                                            </button>
+                                        @endif
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    @empty
+                        @endforeach
+                    @else
                         <div class="col-span-full text-center py-12">
                             <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
@@ -272,11 +282,11 @@
                             <p class="text-gray-500 mb-4">Try adjusting your filters or search terms</p>
                             <a href="{{ route('books.index') }}" class="btn btn-primary">Clear Filters</a>
                         </div>
-                    @endforelse
+                    @endif
                 </div>
 
                 <!-- Pagination -->
-                @if($books->hasPages())
+                @if(isset($books) && $books->hasPages())
                     <div class="mt-8">
                         {{ $books->links() }}
                     </div>
@@ -313,7 +323,7 @@
         window.location.href = url.toString();
     }
 
-    // View toggle
+    // View toggle functionality (placeholder - you can enhance this)
     const gridView = document.getElementById('grid-view');
     const listView = document.getElementById('list-view');
     const booksContainer = document.getElementById('books-container');
@@ -328,7 +338,119 @@
         booksContainer.className = 'space-y-6';
         listView.className = 'p-2 bg-primary-50 text-primary-600';
         gridView.className = 'p-2 bg-gray-50 text-gray-400';
+    });
+
+    // Quick view functionality (placeholder)
+    function quickView(bookId) {
+        // You can implement this later with AJAX
+        showToast('Quick view feature coming soon!', 'info');
+    }
+
+    function closeQuickView() {
+        document.getElementById('quick-view-modal').classList.add('hidden');
+    }
+
+    // Add to cart functionality
+    function addToCart(bookId) {
+        @auth
+            fetch(`/cart/add/${bookId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({ quantity: 1 })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('Book added to cart successfully!', 'success');
+                    updateCartCount();
+                } else {
+                    showToast(data.message || 'Error adding book to cart', 'error');
+                }
+            })
+            .catch(error => {
+                showToast('Error adding book to cart', 'error');
+            });
+        @else
+            showToast('Please login to add books to cart', 'error');
+            setTimeout(() => {
+                window.location.href = '{{ route("login") }}';
+            }, 2000);
+        @endauth
+    }
+
+    // Update cart count
+    function updateCartCount() {
+        @auth
+            fetch('/cart/count')
+                .then(response => response.json())
+                .then(data => {
+                    // Update cart badge if it exists
+                    const cartBadges = document.querySelectorAll('.cart-count');
+                    cartBadges.forEach(badge => {
+                        badge.textContent = data.count;
+                        if (data.count > 0) {
+                            badge.classList.remove('hidden');
+                        } else {
+                            badge.classList.add('hidden');
+                        }
+                    });
+                });
+        @endauth
+    }
+
+    // Filter form submission
+    document.getElementById('filter-form')?.addEventListener('submit', function(e) {
+        e.preventDefault();
         
-        // Convert cards to list view
-        document.querySelectorAll('.book-card').forEach(card => {
-            car
+        const formData = new FormData(this);
+        const url = new URL(window.location.pathname, window.location.origin);
+        
+        // Add form data to URL parameters
+        for (const [key, value] of formData.entries()) {
+            if (value) {
+                url.searchParams.set(key, value);
+            }
+        }
+        
+        window.location.href = url.toString();
+    });
+
+    // Auto-submit on select changes
+    document.querySelectorAll('#filter-form select, #filter-form input[type="checkbox"]').forEach(element => {
+        element.addEventListener('change', function() {
+            document.getElementById('filter-form').dispatchEvent(new Event('submit'));
+        });
+    });
+</script>
+@endpush
+
+<style>
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    .animate-fade-in-up {
+        animation: fadeInUp 0.6s ease-out forwards;
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    
+    @keyframes fadeInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .btn-sm {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.875rem;
+    }
+</style>
+@endsection"

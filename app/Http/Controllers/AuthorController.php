@@ -1,4 +1,4 @@
-<?php 
+<?php
 namespace App\Http\Controllers;
 
 use App\Models\Author;
@@ -22,7 +22,7 @@ class AuthorController extends Controller
         
         $books = Book::with(['author', 'category'])
             ->where('author_id', $author->id)
-            ->active()
+            ->where('is_active', true)
             ->paginate(12);
 
         return view('authors.show', compact('author', 'books'));

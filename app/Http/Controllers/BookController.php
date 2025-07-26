@@ -12,7 +12,11 @@ class BookController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Book::with(['author', 'category'])->active();
+        $query = Book::with(['author', 'category'])->where('is_active', true);
+
+        // Get filter options
+        $categories = Category::where('is_active', true)->orderBy('name')->get();
+        $authors = Author::orderBy('name')->get();
 
         // Filter by category
         if ($request->has('category') && $request->category) {
@@ -50,6 +54,17 @@ class BookController extends Controller
             $query->where('price', '<=', $request->max_price);
         }
 
+        // Quick filters
+        if ($request->has('featured') && $request->featured) {
+            $query->where('is_featured', true);
+        }
+        if ($request->has('on_sale') && $request->on_sale) {
+            $query->whereNotNull('discount_price');
+        }
+        if ($request->has('in_stock') && $request->in_stock) {
+            $query->where('stock_quantity', '>', 0);
+        }
+
         // Sort options
         $sortBy = $request->get('sort', 'title');
         $sortOrder = $request->get('order', 'asc');
@@ -73,10 +88,6 @@ class BookController extends Controller
 
         $books = $query->paginate(12)->withQueryString();
 
-        // Get filter options
-        $categories = Category::active()->orderBy('name')->get();
-        $authors = Author::orderBy('name')->get();
-
         return view('books.index', compact('books', 'categories', 'authors'));
     }
 
@@ -84,20 +95,18 @@ class BookController extends Controller
     {
         $book = Book::with(['author', 'category'])
             ->where('slug', $slug)
-            ->active()
+            ->where('is_active', true)
             ->firstOrFail();
 
         // Get related books (same category, different book)
         $relatedBooks = Book::with(['author', 'category'])
             ->where('category_id', $book->category_id)
             ->where('id', '!=', $book->id)
-            ->active()
-            ->inStock()
+            ->where('is_active', true)
+            ->where('stock_quantity', '>', 0)
             ->limit(4)
             ->get();
 
-        // Track view (you can implement view tracking here)
-        
         return view('books.show', compact('book', 'relatedBooks'));
     }
 
