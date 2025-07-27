@@ -65,16 +65,19 @@ Route::view('/faq', 'pages.faq')->name('faq');
 // Authentication Routes
 require __DIR__.'/auth.php';
 
+// Redirect dashboard to profile
+Route::get('/dashboard', function () {
+    return redirect()->route('profile');
+})->middleware('auth')->name('dashboard');
+
 // Authenticated User Routes
 Route::middleware('auth')->group(function () {
-    // Dashboard and Profile Routes
-    Route::get('/dashboard', [ProfileController::class, 'show'])->name('dashboard');
+    // Profile Routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::get('/profile/view', [ProfileController::class, 'show'])->name('profile');
-    // Add this to your routes/web.php inside the auth middleware group
-Route::put('/password', [PasswordController::class, 'update'])->name('password.update');
+    Route::put('/password', [PasswordController::class, 'update'])->name('password.update');
 
     // Cart Routes
     Route::prefix('cart')->name('cart.')->group(function () {

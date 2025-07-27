@@ -389,5 +389,8 @@ class DatabaseSeeder extends Seeder
         $this->command->info('Database seeded successfully!');
         $this->command->info('Admin login: admin@bookstore.com / password');
         $this->command->info('User login: user@bookstore.com / password');
+        $this->command->info('');
+        $this->command->info('🎉 Your BookStore is ready!');
+        $this->command->info('Visit the homepage to start browsing books.');
     }
 }
