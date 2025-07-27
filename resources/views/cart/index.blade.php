@@ -203,3 +203,71 @@
                 // Update cart total
                 document.getElementById('cart-total').textContent = `$${data.cart_total}`;
                 showToast('Cart updated successfully', 'success');
+            } else {
+                showToast(data.message || 'Error updating cart', 'error');
+            }
+        })
+        .catch(error => {
+            showToast('Error updating cart', 'error');
+        });
+    }
+
+    function removeItem(itemId) {
+        if (confirm('Are you sure you want to remove this item?')) {
+            fetch(`/cart/remove/${itemId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById(`cart-item-${itemId}`).remove();
+                    updateCartTotals();
+                    showToast('Item removed from cart', 'success');
+                } else {
+                    showToast(data.message || 'Error removing item', 'error');
+                }
+            })
+            .catch(error => {
+                showToast('Error removing item', 'error');
+            });
+        }
+    }
+
+    function clearCart() {
+        if (confirm('Are you sure you want to clear your cart?')) {
+            fetch('/cart/clear', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    showToast('Error clearing cart', 'error');
+                }
+            })
+            .catch(error => {
+                showToast('Error clearing cart', 'error');
+            });
+        }
+    }
+
+    function updateCartTotals() {
+        fetch('/cart/count')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('cart-subtotal').textContent = `$${data.total}`;
+                document.getElementById('cart-total').textContent = `$${data.total}`;
+            });
+    }
+</script>
+@endpush
+@endsection

@@ -30,7 +30,7 @@ class CartController extends Controller
     public function add(Request $request, $bookId)
     {
         $request->validate([
-            'quantity' => 'integer|min:1|max:10'
+            'quantity' => 'nullable|integer|min:1|max:10'
         ]);
 
         $book = Book::findOrFail($bookId);
@@ -86,7 +86,7 @@ class CartController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Book added to cart successfully!',
-            'cart_count' => Auth::user()->cart_items_count
+            'cart_count' => Auth::user()->cartItems()->sum('quantity')
         ]);
     }
 
@@ -115,7 +115,7 @@ class CartController extends Controller
             'success' => true,
             'message' => 'Cart updated successfully!',
             'item_total' => number_format($cartItem->book->final_price * $cartItem->quantity, 2),
-            'cart_total' => number_format(Auth::user()->cart_total, 2)
+            'cart_total' => number_format($this->getCartTotal(), 2)
         ]);
     }
 
@@ -130,8 +130,8 @@ class CartController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Item removed from cart successfully!',
-            'cart_count' => Auth::user()->cart_items_count,
-            'cart_total' => number_format(Auth::user()->cart_total, 2)
+            'cart_count' => Auth::user()->cartItems()->sum('quantity'),
+            'cart_total' => number_format($this->getCartTotal(), 2)
         ]);
     }
 
@@ -148,8 +148,8 @@ class CartController extends Controller
     public function count()
     {
         return response()->json([
-            'count' => Auth::user()->cart_items_count,
-            'total' => number_format(Auth::user()->cart_total, 2)
+            'count' => Auth::user()->cartItems()->sum('quantity'),
+            'total' => number_format($this->getCartTotal(), 2)
         ]);
     }
 
@@ -173,8 +173,15 @@ class CartController extends Controller
         return response()->json([
             'success' => true,
             'items' => $items,
-            'total' => number_format(Auth::user()->cart_total, 2),
-            'count' => Auth::user()->cart_items_count
+            'total' => number_format($this->getCartTotal(), 2),
+            'count' => Auth::user()->cartItems()->sum('quantity')
         ]);
+    }
+
+    private function getCartTotal()
+    {
+        return Auth::user()->cartItems()->with('book')->get()->sum(function ($item) {
+            return $item->book->final_price * $item->quantity;
+        });
     }
 }

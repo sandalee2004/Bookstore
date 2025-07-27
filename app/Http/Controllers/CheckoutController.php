@@ -12,7 +12,7 @@ class CheckoutController extends Controller
     public function index()
     {
         $user = Auth::user();
-        $cartItems = $user->cartItems()->with('book')->get();
+        $cartItems = $user->cartItems()->with(['book.author', 'book.category'])->get();
         
         if ($cartItems->isEmpty()) {
             return redirect()->route('cart.index')->with('error', 'Your cart is empty.');
