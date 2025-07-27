@@ -66,9 +66,7 @@ Route::view('/faq', 'pages.faq')->name('faq');
 require __DIR__.'/auth.php';
 
 // Redirect dashboard to profile
-Route::get('/dashboard', function () {
-    return redirect()->route('profile');
-})->middleware('auth')->name('dashboard');
+Route::get('/dashboard', [ProfileController::class, 'show'])->middleware('auth')->name('dashboard');
 
 // Authenticated User Routes
 Route::middleware('auth')->group(function () {
