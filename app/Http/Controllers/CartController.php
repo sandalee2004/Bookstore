@@ -7,6 +7,8 @@ use App\Models\Book;
 use App\Models\CartItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Routing\Controller;
+
 
 class CartController extends Controller
 {
