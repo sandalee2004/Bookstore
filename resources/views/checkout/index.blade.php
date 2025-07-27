@@ -280,7 +280,7 @@
                         </div>
                     </div>
                     
-                    @if($subtotal >= 50)
+                    @if($shippingCost == 0)
                         <div class="bg-green-50 border border-green-200 rounded-lg p-3 mb-4">
                             <div class="flex items-center">
                                 <svg class="w-5 h-5 text-green-600 mr-2" fill="currentColor" viewBox="0 0 20 20">

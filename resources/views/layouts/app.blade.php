@@ -174,20 +174,38 @@
                 
                 <div class="flex-1 overflow-y-auto p-4">
                     @auth
-                        @if(auth()->user()->cartItems->count() > 0)
-                            <!-- Cart items will be loaded here -->
-                            <div id="cart-items">
-                                <!-- Cart items content -->
-                            </div>
-                        @else
-                            <div class="text-center py-8">
-                                <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m.6 8L6 18h12M7 13v6a1 1 0 001 1h8a1 1 0 001-1v-6M7 13l-2.4-8"/>
-                                </svg>
-                                <p class="text-gray-500">Your cart is empty</p>
-                                <a href="{{ route('books.index') }}" class="btn btn-primary mt-4 ripple">Browse Books</a>
-                            </div>
-                        @endif
+                        <div id="cart-items-container">
+                            @php
+                                $cartItems = auth()->user()->cartItems()->with('book.author')->get();
+                            @endphp
+                            @if($cartItems->count() > 0)
+                                <div class="space-y-3">
+                                    @foreach($cartItems as $item)
+                                        <div class="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                                            <img src="{{ $item->book->cover_image }}" 
+                                                 alt="{{ $item->book->title }}" 
+                                                 class="w-12 h-16 object-cover rounded">
+                                            <div class="flex-1 min-w-0">
+                                                <h4 class="font-medium text-gray-900 text-sm truncate">{{ $item->book->title }}</h4>
+                                                <p class="text-xs text-gray-600">by {{ $item->book->author->name }}</p>
+                                                <p class="text-xs text-gray-500">Qty: {{ $item->quantity }}</p>
+                                            </div>
+                                            <div class="text-right">
+                                                <p class="text-sm font-medium text-gray-900">${{ number_format($item->book->final_price * $item->quantity, 2) }}</p>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @else
+                                <div class="text-center py-8">
+                                    <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m.6 8L6 18h12M7 13v6a1 1 0 001 1h8a1 1 0 001-1v-6M7 13l-2.4-8"/>
+                                    </svg>
+                                    <p class="text-gray-500">Your cart is empty</p>
+                                    <a href="{{ route('books.index') }}" class="btn btn-primary mt-4 ripple">Browse Books</a>
+                                </div>
+                            @endif
+                        </div>
                     @else
                         <div class="text-center py-8">
                             <p class="text-gray-500 mb-4">Please login to view your cart</p>
@@ -197,12 +215,21 @@
                 </div>
                 
                 @auth
-                    @if(auth()->user()->cartItems->count() > 0)
+                    @php
+                        $cartItems = auth()->user()->cartItems()->with('book')->get();
+                        $cartTotal = $cartItems->sum(function ($item) {
+                            return $item->book->final_price * $item->quantity;
+                        });
+                    @endphp
+                    @if($cartItems->count() > 0)
                         <div class="border-t border-white/20 p-4">
                             <div class="flex justify-between items-center mb-4">
-                                <span class="font-semibold">Total: ${{ number_format(auth()->user()->cart_total, 2) }}</span>
+                                <span class="font-semibold">Total: ${{ number_format($cartTotal, 2) }}</span>
                             </div>
-                            <a href="{{ route('checkout') }}" class="btn btn-primary w-full ripple">Checkout</a>
+                            <div class="space-y-2">
+                                <a href="{{ route('cart.index') }}" class="btn btn-outline w-full ripple">View Cart</a>
+                                <a href="{{ route('checkout.index') }}" class="btn btn-primary w-full ripple">Checkout</a>
+                            </div>
                         </div>
                     @endif
                 @endauth

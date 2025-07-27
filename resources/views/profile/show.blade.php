@@ -76,7 +76,7 @@
                         
                         <div class="flex justify-between items-center">
                             <span class="text-gray-600">Cart Items</span>
-                            <span class="font-semibold text-gray-900">{{ $user->cart_items_count ?? 0 }}</span>
+                            <span class="font-semibold text-gray-900">{{ $user->cartItems()->sum('quantity') }}</span>
                         </div>
                         
                         <div class="flex justify-between items-center">

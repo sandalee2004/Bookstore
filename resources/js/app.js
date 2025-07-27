@@ -315,12 +315,25 @@ Alpine.data('cart', () => ({
                 await this.loadCartItems();
                 showToast('Book added to cart with style! ✨', 'success');
                 this.pulseCartIcon();
+                this.updateCartBadge(data.cart_count);
             } else {
                 showToast(data.message || 'Error adding to cart', 'error');
             }
         } catch (error) {
             showToast('Error adding to cart', 'error');
         }
+    },
+    
+    updateCartBadge(count) {
+        const cartBadges = document.querySelectorAll('.cart-count');
+        cartBadges.forEach(badge => {
+            badge.textContent = count;
+            if (count > 0) {
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        });
     },
     
     pulseCartIcon() {
