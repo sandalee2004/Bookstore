@@ -44,28 +44,93 @@
                 <!-- Logo -->
                 <div class="flex items-center">
                     <a href="{{ route('home') }}" class="flex items-center space-x-2 group magnetic">
-                        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center transform group-hover:rotate-12 transition-transform duration-500 shadow-2xl">
-                            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        <div class="w-12 h-12 bg-gradient-to-br from-amber-600 via-orange-500 to-red-500 rounded-xl flex items-center justify-center transform group-hover:scale-110 transition-all duration-300 shadow-xl relative overflow-hidden">
+                            <!-- Book pages effect -->
+                            <div class="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent transform -skew-x-12 translate-x-full group-hover:translate-x-0 transition-transform duration-500"></div>
+                            <svg class="w-7 h-7 text-white relative z-10" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
                             </svg>
                         </div>
-                        <span class="text-2xl font-bold gradient-text">BookStore</span>
+                        <div class="flex flex-col">
+                            <span class="text-2xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">BookStore</span>
+                            <span class="text-xs text-gray-500 -mt-1 tracking-wider">ONLINE LIBRARY</span>
+                        </div>
                     </a>
                 </div>
 
                 <!-- Search Bar -->
-                <div class="hidden md:flex flex-1 max-w-md mx-8" x-data="modernSearch()">
+                <div class="hidden md:flex flex-1 max-w-md mx-8" x-data="{ 
+                    query: '', 
+                    results: [], 
+                    isLoading: false, 
+                    showResults: false, 
+                    selectedIndex: -1,
+                    
+                    async search() {
+                        if (this.query.length < 2) {
+                            this.results = [];
+                            this.showResults = false;
+                            return;
+                        }
+                        
+                        this.isLoading = true;
+                        this.selectedIndex = -1;
+                        
+                        try {
+                            const response = await fetch(`/search?q=${encodeURIComponent(this.query)}&ajax=1`);
+                            const data = await response.json();
+                            this.results = data.books || [];
+                            this.showResults = true;
+                        } catch (error) {
+                            console.error('Search error:', error);
+                            this.results = [];
+                            this.showResults = false;
+                        } finally {
+                            this.isLoading = false;
+                        }
+                    },
+                    
+                    handleKeydown(event) {
+                        if (!this.showResults) return;
+                        
+                        switch (event.key) {
+                            case 'ArrowDown':
+                                event.preventDefault();
+                                this.selectedIndex = Math.min(this.selectedIndex + 1, this.results.length - 1);
+                                break;
+                            case 'ArrowUp':
+                                event.preventDefault();
+                                this.selectedIndex = Math.max(this.selectedIndex - 1, -1);
+                                break;
+                            case 'Enter':
+                                event.preventDefault();
+                                if (this.selectedIndex >= 0) {
+                                    window.location.href = `/books/${this.results[this.selectedIndex].slug}`;
+                                } else {
+                                    window.location.href = `/books?search=${encodeURIComponent(this.query)}`;
+                                }
+                                break;
+                            case 'Escape':
+                                this.showResults = false;
+                                this.selectedIndex = -1;
+                                break;
+                        }
+                    }
+                }">
                     <div class="relative w-full">
                         <input type="text" 
                                placeholder="Search for books, authors..." 
                                x-model="query"
                                @input.debounce.300ms="search()"
                                @keydown="handleKeydown($event)"
+                               @focus="if(query.length >= 2) showResults = true"
+                               @blur="setTimeout(() => showResults = false, 200)"
                                class="w-full pl-12 pr-4 py-3 glass-effect rounded-2xl focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-400 text-gray-800 placeholder-gray-500">
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg x-show="!isLoading" class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                             </svg>
+                            <div x-show="isLoading" class="w-5 h-5 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
                         </div>
                         
                         <!-- Search Results Dropdown -->
@@ -73,6 +138,9 @@
                              x-transition:enter="transition ease-out duration-200"
                              x-transition:enter-start="opacity-0 transform scale-95"
                              x-transition:enter-end="opacity-100 transform scale-100"
+                             x-transition:leave="transition ease-in duration-150"
+                             x-transition:leave-start="opacity-100 transform scale-100"
+                             x-transition:leave-end="opacity-0 transform scale-95"
                              class="absolute top-full left-0 right-0 mt-2 glass-card rounded-2xl shadow-2xl max-h-96 overflow-y-auto z-50">
                             <template x-for="(result, index) in results" :key="result.id">
                                 <a :href="`/books/${result.slug}`" 
@@ -81,11 +149,15 @@
                                     <img :src="result.cover_image" :alt="result.title" class="w-12 h-16 object-cover rounded-lg mr-4">
                                     <div>
                                         <h4 class="font-semibold text-gray-900" x-text="result.title"></h4>
-                                        <p class="text-sm text-gray-600" x-text="'by ' + result.author"></p>
-                                        <p class="text-sm font-medium text-blue-600" x-text="'$' + result.price"></p>
+                                        <p class="text-sm text-gray-600" x-text="'by ' + (result.author ? result.author.name : 'Unknown Author')"></p>
+                                        <p class="text-sm font-medium text-blue-600" x-text="'$' + parseFloat(result.final_price || result.price || 0).toFixed(2)"></p>
                                     </div>
                                 </a>
                             </template>
+                            <div x-show="showResults && results.length === 0 && !isLoading && query.length >= 2" 
+                                 class="p-4 text-center text-gray-500">
+                                <p>No books found for "<span x-text="query"></span>"</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -316,12 +388,15 @@
                 <!-- Company Info -->
                 <div class="col-span-1 md:col-span-2">
                     <div class="flex items-center space-x-2 mb-4">
-                        <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-2xl">
-                            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        <div class="w-12 h-12 bg-gradient-to-br from-amber-600 via-orange-500 to-red-500 rounded-xl flex items-center justify-center shadow-2xl">
+                            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
                             </svg>
                         </div>
-                        <span class="text-2xl font-bold gradient-text">BookStore</span>
+                        <div class="flex flex-col">
+                            <span class="text-2xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">BookStore</span>
+                            <span class="text-xs text-gray-400 -mt-1 tracking-wider">ONLINE LIBRARY</span>
+                        </div>
                     </div>
                     <p class="text-gray-300 mb-6 leading-relaxed">Your trusted online bookstore with thousands of books across all genres. Fast delivery, secure payment, and excellent customer service.</p>
                     <div class="flex space-x-6">

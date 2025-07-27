@@ -44,6 +44,9 @@ class HomeController extends Controller
         $query = $request->get('q');
         
         if (empty($query)) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['books' => []]);
+            }
             return redirect()->route('books.index');
         }
 
@@ -60,8 +63,40 @@ class HomeController extends Controller
                       $categoryQuery->where('name', 'ILIKE', "%{$query}%");
                   });
             })
-            ->paginate(12);
+            ->limit(10)
+            ->get();
 
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'books' => $books->map(function ($book) {
+                    return [
+                        'id' => $book->id,
+                        'title' => $book->title,
+                        'slug' => $book->slug,
+                        'author' => $book->author,
+                        'category' => $book->category,
+                        'price' => $book->price,
+                        'final_price' => $book->final_price,
+                        'cover_image' => $book->cover_image,
+                    ];
+                })
+            ]);
+        // For non-AJAX requests, paginate and return view
+        $books = Book::with(['author', 'category'])
+            ->active()
+            ->where(function ($q) use ($query) {
+                $q->where('title', 'ILIKE', "%{$query}%")
+                  ->orWhere('description', 'ILIKE', "%{$query}%")
+                  ->orWhere('isbn', 'ILIKE', "%{$query}%")
+                  ->orWhereHas('author', function ($authorQuery) use ($query) {
+                      $authorQuery->where('name', 'ILIKE', "%{$query}%");
+                  })
+                  ->orWhereHas('category', function ($categoryQuery) use ($query) {
+                      $categoryQuery->where('name', 'ILIKE', "%{$query}%");
+                  });
+            })
+            ->paginate(12);
+        }
         return view('books.index', compact('books', 'query'));
     }
 }
