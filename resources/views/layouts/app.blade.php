@@ -29,6 +29,8 @@
         }
         .loading { opacity: 0; }
         .loaded { opacity: 1; transition: opacity 0.6s ease; }
+
+        
     </style>
     
     <!-- Additional head content -->

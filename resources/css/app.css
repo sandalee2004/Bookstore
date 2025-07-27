@@ -86,7 +86,8 @@ h1, h2, h3, h4, h5, h6 {
   
   .btn-primary {
     background: var(--primary-gradient);
-    @apply text-white shadow-2xl hover:shadow-3xl focus:ring-blue-500;
+    @apply text-white shadow-2xl hover:shadow-2xl focus:ring-blue-500;
+
     transform: translateY(0) scale(1);
     transition: all 0.4s var(--elastic-timing);
   }
@@ -98,7 +99,8 @@ h1, h2, h3, h4, h5, h6 {
   
   .btn-secondary {
     background: var(--secondary-gradient);
-    @apply text-white shadow-2xl hover:shadow-3xl focus:ring-pink-500;
+    @apply text-white shadow-2xl hover:shadow-xl focus:ring-pink-500;
+
   }
   
   .btn-secondary:hover {
@@ -145,9 +147,10 @@ h1, h2, h3, h4, h5, h6 {
   
   /* Modern Input Fields with Floating Labels */
   .input-field {
-    @apply block w-full rounded-2xl border-2 border-gray-200 shadow-lg focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-400 bg-white/80 backdrop-blur-sm;
-    padding: 1rem 1.5rem;
-  }
+  @apply block w-full rounded-2xl border-2 border-gray-200 shadow-lg focus:border-blue-500 focus:ring-4 focus:ring-blue-500/20 transition-all duration-300 bg-white/80 backdrop-blur-sm;
+  padding: 1rem 1.5rem;
+}
+
   
   .input-field:focus {
     transform: translateY(-2px);
@@ -196,7 +199,7 @@ h1, h2, h3, h4, h5, h6 {
   
   /* Gradient Text Effects */
   .gradient-text {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    background: linear-gradient(135deg, #001988 0%, #ffffff 50%, #7d008a 100%);
     background-size: 300% 300%;
     -webkit-background-clip: text;
     background-clip: text;
