@@ -359,10 +359,9 @@
     </script>
 </body>
 </html>
-                                </span>
-                            @endif
-                        @endauth
-                    </button>
+                                @auth
+    ...
+@endauth
 
                     @guest
                         <a href="{{ route('login') }}" class="text-gray-700 hover:text-blue-600 font-medium magnetic">Login</a>
