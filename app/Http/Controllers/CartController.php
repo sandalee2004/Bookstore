@@ -27,14 +27,12 @@ class CartController extends Controller
         return view('cart.index', compact('cartItems', 'total'));
     }
 
-    public function add(Request $request, $bookId)
+    public function add(Request $request, Book $book)
     {
         $request->validate([
             'quantity' => 'nullable|integer|min:1|max:10'
         ]);
 
-        $book = Book::findOrFail($bookId);
-        
         // Check if book is active and in stock
         if (!$book->is_active) {
             return response()->json([
@@ -54,7 +52,7 @@ class CartController extends Controller
         
         // Check if book is already in cart
         $cartItem = CartItem::where('user_id', Auth::id())
-            ->where('book_id', $bookId)
+            ->where('book_id', $book->id)
             ->first();
 
         if ($cartItem) {
@@ -78,7 +76,7 @@ class CartController extends Controller
             
             CartItem::create([
                 'user_id' => Auth::id(),
-                'book_id' => $bookId,
+                'book_id' => $book->id,
                 'quantity' => $quantity
             ]);
         }

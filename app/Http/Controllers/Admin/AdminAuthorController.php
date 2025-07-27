@@ -88,10 +88,16 @@ class AdminAuthorController extends Controller
     public function destroy(Author $author)
     {
         if ($author->books()->count() > 0) {
-            return back()->with('error', 'Cannot delete author with existing books.');
+            return response()->json([
+                'success' => false,
+                'message' => 'Cannot delete author with existing books.'
+            ]);
         }
 
         $author->delete();
-        return redirect()->route('admin.authors.index')->with('success', 'Author deleted successfully.');
+        return response()->json([
+            'success' => true,
+            'message' => 'Author deleted successfully.'
+        ]);
     }
 }

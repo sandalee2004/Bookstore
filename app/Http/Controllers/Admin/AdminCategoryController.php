@@ -97,6 +97,24 @@ class AdminCategoryController extends Controller
         $category->update(['is_active' => !$category->is_active]);
         
         $status = $category->is_active ? 'activated' : 'deactivated';
-        return back()->with('success', "Category {$status} successfully.");
+        return response()->json([
+            'success' => true,
+            'message' => "Category {$status} successfully."
+        ]);
+    }
+    
+    public function destroy(Category $category)
+    {
+        if ($category->books()->count() > 0) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Cannot delete category with existing books.'
+            ]);
+        }
+        $category->delete();
+        return response()->json([
+            'success' => true,
+            'message' => 'Category deleted successfully.'
+        ]);
     }
 }

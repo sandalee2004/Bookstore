@@ -48,6 +48,9 @@ class AdminOrderController extends Controller
             $order->update(['delivered_at' => now()]);
         }
 
-        return back()->with('success', 'Order status updated successfully.');
+        return response()->json([
+            'success' => true,
+            'message' => 'Order status updated successfully.'
+        ]);
     }
 }

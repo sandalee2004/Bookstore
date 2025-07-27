@@ -98,10 +98,29 @@ class CheckoutController extends Controller
 
             // Here you would integrate with actual payment processor
             // For demo purposes, we'll simulate successful payment
-            $order->update([
-                'status' => 'processing',
-                'payment_status' => 'paid',
-            ]);
+            
+            // Simulate payment processing
+            $paymentResult = $this->processPayment($request->payment_method, $total);
+            
+            if ($paymentResult['success']) {
+                $order->update([
+                    'status' => 'processing',
+                    'payment_status' => 'paid',
+                ]);
+            } else {
+                $order->update([
+                    'status' => 'cancelled',
+                    'payment_status' => 'failed',
+                ]);
+                
+                // Restore stock
+                foreach ($cartItems as $cartItem) {
+                    $cartItem->book->increment('stock_quantity', $cartItem->quantity);
+                }
+                
+                DB::rollback();
+                return back()->with('error', 'Payment failed: ' . $paymentResult['message']);
+            }
 
             DB::commit();
 
@@ -126,5 +145,25 @@ class CheckoutController extends Controller
     public function cancel()
     {
         return view('checkout.cancel');
+    }
+    
+    private function processPayment($paymentMethod, $amount)
+    {
+        // Simulate payment processing with different outcomes
+        $random = rand(1, 100);
+        
+        // 95% success rate for simulation
+        if ($random <= 95) {
+            return [
+                'success' => true,
+                'transaction_id' => 'sim_' . uniqid(),
+                'message' => 'Payment processed successfully'
+            ];
+        } else {
+            return [
+                'success' => false,
+                'message' => 'Payment declined. Please try a different payment method.'
+            ];
+        }
     }
 }

@@ -320,6 +320,7 @@ Alpine.data('cart', () => ({
                 showToast(data.message || 'Error adding to cart', 'error');
             }
         } catch (error) {
+            console.error('Cart error:', error);
             showToast('Error adding to cart', 'error');
         }
     },

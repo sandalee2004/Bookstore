@@ -106,7 +106,7 @@
                     </div>
                     <div>
                         <h3 class="font-medium text-blue-900">Order Processing</h3>
-                        <p class="text-blue-700 text-sm">We'll prepare your books for shipment within 1-2 business days.</p>
+                        <p class="text-blue-700 text-sm">Your payment was processed successfully. We'll prepare your books for shipment within 1-2 business days.</p>
                     </div>
                 </div>
 

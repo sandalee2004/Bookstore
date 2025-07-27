@@ -190,7 +190,7 @@
                                 <svg class="w-6 h-6 text-gray-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
                                 </svg>
-                                <span class="font-medium">Credit Card</span>
+                                <span class="font-medium">Credit Card (Simulation)</span>
                             </div>
                         </label>
 
@@ -203,7 +203,7 @@
                                 <svg class="w-6 h-6 text-blue-600 mr-2" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106zm14.146-14.42a3.35 3.35 0 0 0-.607-.541c-.013.076-.026.175-.041.26-.93 4.778-4.005 7.201-9.138 7.201h-2.19a.563.563 0 0 0-.556.479l-1.187 7.527h-.506l-.24 1.516a.641.641 0 0 0 .633.74h3.94a.563.563 0 0 0 .556-.479l.24-1.516h.506l.72-4.56a.563.563 0 0 1 .556-.479h1.367c3.49 0 6.227-1.417 7.032-5.523.362-1.847.2-3.416-.285-4.625z"/>
                                 </svg>
-                                <span class="font-medium">PayPal</span>
+                                <span class="font-medium">PayPal (Simulation)</span>
                             </div>
                         </label>
 
@@ -216,9 +216,25 @@
                                 <svg class="w-6 h-6 text-purple-600 mr-2" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.975 15.697 0 12.165 0 9.667 0 7.589.654 6.104 1.872 4.56 3.147 3.757 4.992 3.757 7.218c0 4.039 2.467 5.76 6.476 7.219 2.585.92 3.445 1.574 3.445 2.583 0 .98-.84 1.545-2.354 1.545-1.875 0-4.965-.921-6.99-2.109l-.9 5.555C5.175 22.99 8.385 24 11.714 24c2.641 0 4.843-.624 6.328-1.813 1.664-1.305 2.525-3.236 2.525-5.732 0-4.128-2.524-5.851-6.591-7.305z"/>
                                 </svg>
-                                <span class="font-medium">Stripe</span>
+                                <span class="font-medium">Stripe (Simulation)</span>
                             </div>
                         </label>
+                        
+                        <!-- Payment Simulation Notice -->
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-4">
+                            <div class="flex items-start">
+                                <svg class="w-5 h-5 text-blue-600 mr-2 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                                </svg>
+                                <div>
+                                    <h3 class="text-sm font-medium text-blue-800">Payment Simulation</h3>
+                                    <p class="text-xs text-blue-700 mt-1">
+                                        This is a demo store. No real payments will be processed. 
+                                        The system simulates a 95% success rate for testing purposes.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     @error('payment_method')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>

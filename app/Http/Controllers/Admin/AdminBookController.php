@@ -146,7 +146,19 @@ class AdminBookController extends Controller
         $book->update(['is_active' => !$book->is_active]);
         
         $status = $book->is_active ? 'activated' : 'deactivated';
-        return back()->with('success', "Book {$status} successfully.");
+        return response()->json([
+            'success' => true,
+            'message' => "Book {$status} successfully."
+        ]);
+    }
+    
+    public function destroy(Book $book)
+    {
+        $book->delete();
+        return response()->json([
+            'success' => true,
+            'message' => 'Book deleted successfully.'
+        ]);
     }
 }
 

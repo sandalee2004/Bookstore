@@ -37,17 +37,26 @@ class AdminUserController extends Controller
         $user->update(['is_admin' => !$user->is_admin]);
         
         $status = $user->is_admin ? 'granted admin privileges' : 'removed admin privileges';
-        return back()->with('success', "User {$status} successfully.");
+        return response()->json([
+            'success' => true,
+            'message' => "User {$status} successfully."
+        ]);
     }
 
     public function destroy(User $user)
     {
         // Prevent deleting the current admin user
         if ($user->id === auth()->id()) {
-            return back()->with('error', 'You cannot delete your own account.');
+            return response()->json([
+                'success' => false,
+                'message' => 'You cannot delete your own account.'
+            ]);
         }
 
         $user->delete();
-        return redirect()->route('admin.users.index')->with('success', 'User deleted successfully.');
+        return response()->json([
+            'success' => true,
+            'message' => 'User deleted successfully.'
+        ]);
     }
 }
