@@ -75,7 +75,7 @@
                             </div>
                             <div>
                                 <h3 class="font-semibold text-gray-900">Address</h3>
-                                <p class="text-gray-600">123 Book Street<br>Reading City, RC 12345<br>United States</p>
+                                <p class="text-gray-600">Kannattiya<br>Mihinthale<br>SriLanka</p>
                             </div>
                         </div>
                         
@@ -87,7 +87,7 @@
                             </div>
                             <div>
                                 <h3 class="font-semibold text-gray-900">Phone</h3>
-                                <p class="text-gray-600">+1 (555) 123-4567</p>
+                                <p class="text-gray-600">+94 74-1921705</p>
                                 <p class="text-sm text-gray-500">Mon-Fri 9am-6pm EST</p>
                             </div>
                         </div>
