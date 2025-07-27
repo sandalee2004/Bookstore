@@ -278,14 +278,23 @@ Alpine.data('cart', () => ({
     async loadCartItems() {
         try {
             const response = await fetch('/cart/items');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
             const data = await response.json();
             if (data.success) {
                 this.items = data.items;
                 this.total = data.total;
                 this.animateCartItems();
+            } else {
+                console.error('Cart API error:', data.message);
+                this.items = [];
+                this.total = 0;
             }
         } catch (error) {
             console.error('Error loading cart items:', error);
+            this.items = [];
+            this.total = 0;
         }
     },
     
@@ -309,6 +318,10 @@ Alpine.data('cart', () => ({
                 },
                 body: JSON.stringify({ quantity })
             });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
             
             const data = await response.json();
             if (data.success) {

@@ -138,7 +138,10 @@ class AdminBookController extends Controller
     public function destroy(Book $book)
     {
         $book->delete();
-        return redirect()->route('admin.books.index')->with('success', 'Book deleted successfully.');
+        return response()->json([
+            'success' => true,
+            'message' => 'Book deleted successfully.'
+        ]);
     }
 
     public function toggleStatus(Book $book)
@@ -149,15 +152,6 @@ class AdminBookController extends Controller
         return response()->json([
             'success' => true,
             'message' => "Book {$status} successfully."
-        ]);
-    }
-    
-    public function destroy(Book $book)
-    {
-        $book->delete();
-        return response()->json([
-            'success' => true,
-            'message' => 'Book deleted successfully.'
         ]);
     }
 }

@@ -85,11 +85,16 @@ class AdminCategoryController extends Controller
     public function destroy(Category $category)
     {
         if ($category->books()->count() > 0) {
-            return back()->with('error', 'Cannot delete category with existing books.');
+            return response()->json([
+                'success' => false,
+                'message' => 'Cannot delete category with existing books.'
+            ]);
         }
-
         $category->delete();
-        return redirect()->route('admin.categories.index')->with('success', 'Category deleted successfully.');
+        return response()->json([
+            'success' => true,
+            'message' => 'Category deleted successfully.'
+        ]);
     }
 
     public function toggleStatus(Category $category)
@@ -100,21 +105,6 @@ class AdminCategoryController extends Controller
         return response()->json([
             'success' => true,
             'message' => "Category {$status} successfully."
-        ]);
-    }
-    
-    public function destroy(Category $category)
-    {
-        if ($category->books()->count() > 0) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Cannot delete category with existing books.'
-            ]);
-        }
-        $category->delete();
-        return response()->json([
-            'success' => true,
-            'message' => 'Category deleted successfully.'
         ]);
     }
 }
